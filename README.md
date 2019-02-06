@@ -15,6 +15,8 @@ Base of this image builds [debian](https://www.balena.io/docs/reference/base-ima
 
 Once the container is started it needs to be upgraded first with the Raspberry runtime packages [CODESYS Control for Raspberry Pi SL](https://store.codesys.com/codesys-control-for-raspberry-pi-sl.html) or [CODESYS Control for Raspberry Pi MC SL](https://store.codesys.com/codesys-control-for-raspberry-pi-mc-sl.html). We do not offer these packages preinstalled within the container since the End User License Agreement for these packages have to be accepted by each user individually.
 
+By default the runtime is time limited to run 1 hour until it stops. It needs an upgrade in a separate [licensing procedure](https://www.codesys.com/the-system/licensing.html).
+
 #### Container prerequisites
 
 ##### Bridge network (Alternative A)
@@ -81,6 +83,16 @@ STEP 3: Use the new function `Tools -> Update Raspberry Pi` to deploy your "CODE
 STEP 4: Press `Runtime -> Start` to activate the CODESYS runtime in the container. This will also activate an automatic start of the runtime during power cycles.
 
 STEP 5: Setup a communication path to netPI using the software gateway running in netPI's runtime. Create a new gateway with netPI's IP address at port 1217. Then use the `Scan network` option and click on the device found. e.g. host mode: NTB827EBEA02D0 [0000.0539]. 
+
+#### IMPORTANT INFORMATION: BACKUP YOUR LICENSE
+
+Usually an email with a ticket number (e.g A78HY-TBVMD-8SVC7-P8BHX-4LED6) is granting you a license. Together with the CODESYS development system the ticket number is transformed in a license deployed to the device to activate the unlimited runtime. 
+
+Since the ticket number gets invalid during the licensing procedure and cannot be reused again the only license copy is stored on the device **in the container** worth it to backup. If the container gets lost or is deleted your license copy is **gone forever**.
+
+To backup the license file "3SLicenseInfo.tar" follow this [FAQ information](https://forum.codesys.com/viewtopic.php?f=22&t=5641&start=15#p10689).
+
+To restore the license file "3SLicenseInfo.tar" follow this [FAQ information](https://forum.codesys.com/viewtopic.php?f=22&t=5641&p=10690#p10690).
 
 #### Versions tested
 The container has been successfully tested against the [CODESYS Development System V3](https://store.codesys.com/codesys.html) in the version V3.5.14.0 and the [CODESYS Control for Raspberry Pi SL](https://store.codesys.com/codesys-control-for-raspberry-pi-sl.html) and [CODESYS Control for Raspberry Pi MC SL](https://store.codesys.com/codesys-control-for-raspberry-pi-mc-sl.html) both in the version V3.5.14.0.
