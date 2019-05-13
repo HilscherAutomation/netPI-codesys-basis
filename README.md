@@ -29,7 +29,7 @@ To allow the CODESYS Development System installing the CODESYS Runtime into the 
 
 To allow the CODESYS Development System communicating with the deployed CODESYS Runtime the container TCP port `1217` needs to be exposed to the host.
 
-The CODESYS runtime starts an OPC UA server. To access the OPC UA server from an OPC UA client the container TCP port `4880` needs to be exposed to the host.
+The CODESYS runtime starts an OPC UA server. To access the OPC UA server from an OPC UA client the container TCP port `4840` needs to be exposed to the host.
 
 ##### Host network (Alternative B)
 
