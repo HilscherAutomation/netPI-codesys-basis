@@ -7,47 +7,74 @@
 
 Made for [netPI](https://www.netiot.com/netpi/), the Raspberry Pi 3B Architecture based industrial suited Open Edge Connectivity Ecosystem
 
-### Debian with SSH server, user pi and basic settings to run CODESYS Control for Raspberry Pi SL or Pi MC SL
+### Secured netPI Docker
 
-The image provided hereunder deploys a container with a basic setup of Linux tools, utilities and user needed for a flawless installation of the CODESYS Control for Raspberry Pi (SL and MC SL) packages across the Windows® based [CODESYS Development System V3](https://store.codesys.com/codesys.html?___store=en&___from_store=en).
+netPI features a restricted Docker protecting the system software's integrity by maximum. The restrictions are 
 
-Base of this image builds [debian](https://www.balena.io/docs/reference/base-images/base-images/) with enabled [SSH](https://en.wikipedia.org/wiki/Secure_Shell) and created user 'pi'(sudo). This setup is equivalent to a stripped down Raspbian OS with least capabilities.
+* privileged mode is not automatically adding all host devices `/dev/` to a container
+* volume bind mounts to rootfs is not supported
+* the devices `/dev`,`/dev/mem`,`/dev/sd*`,`/dev/dm*`,`/dev/mapper`,`/dev/mmcblk*` cannot be added to a container
 
-Once the container is started it needs to be upgraded first with the Raspberry runtime packages [CODESYS Control for Raspberry Pi SL](https://store.codesys.com/codesys-control-for-raspberry-pi-sl.html) or [CODESYS Control for Raspberry Pi MC SL](https://store.codesys.com/codesys-control-for-raspberry-pi-mc-sl.html). We do not offer these packages preinstalled within the container since the End User License Agreement for these packages have to be accepted by each user individually.
+### Container features
 
-By default the runtime is time limited to run 1 hour until it stops. It needs an upgrade in a separate [licensing procedure](https://www.codesys.com/the-system/licensing.html).
+The image provided hereunder deploys a container with a basic setup of Linux tools, utilities and default user needed for a flawless installation of the CODESYS Control for Raspberry Pi (SL and MC SL) packages with the Windows® based [CODESYS Development System V3](https://store.codesys.com/codesys.html)(free).
 
-#### Container prerequisites
+Base of this image builds [debian](https://www.balena.io/docs/reference/base-images/base-images/) with enabled [SSH](https://en.wikipedia.org/wiki/Secure_Shell) and created default user 'pi'(sudo). This setup is equivalent to a stripped down Raspbian OS with least capabilities.
 
-##### Bridge network (Alternative A)
+Once the container is deployed it needs an upgrade with the following packages you can download from the CODESYS store
 
-Use bridge network mode in case the container shall run isolated and requires no further control of the host network interface `eth0` (or other) required for Modbus TCP, PROFINET or similar communications.
+* [CODESYS Control for Raspberry Pi SL](https://store.codesys.com/codesys-control-for-raspberry-pi-sl.html) or [CODESYS Control for Raspberry Pi MC SL](https://store.codesys.com/codesys-control-for-raspberry-pi-mc-sl.html)
+* [CODESYS Edge Gateway](https://store.codesys.com/codesys-edge-gateway.html) (needed since version V3.5.15.x)
 
-Bridge mode works like a firewall where all container network ports are closed by default. For incoming network traffic ports need to be opened explicitly.
+### Container licensing
 
-To allow the CODESYS Development System installing the CODESYS Runtime into the container the container TCP port `22` needs to be exposed to the host.
+If not licensed the "CODESYS Control for Raspberry Pi" SoftPLC runtime operates 1 hour and then stops. A [Licensing](https://www.codesys.com/the-system/licensing.html) is needed to make it run an unlimited time.
 
-To allow the CODESYS Development System communicating with the deployed CODESYS Runtime the container TCP port `1217` needs to be exposed to the host.
+A license purchase follows an email with a ticket number (e.g A78HY-TBVMD-8SVC7-P8BHX-4LED6) granting you the license. The `Tools->License Manager` in the CODESYS Development System (internet needed) transforms the ticket number in a deployed license. The ticket number can be used only one time and gets invalid during the licensing procedure.
 
-The CODESYS runtime starts an OPC UA server. To access the OPC UA server from an OPC UA client the container TCP port `4840` needs to be exposed to the host.
+It is possible to deploy a license to either a CODESYS Runtime Key (USB dongle) or to a software container. 
 
-##### Host network (Alternative B)
+**IMPORTANT NOTE**: A software container needs special care since the license is stored on the device itself in the Docker container. If this container is lost or destroyed by any reason or is deleted your license copy is **gone forever!!!**. This is why a license backup is obligatory in this case.
 
-Use host network mode in case the container requires control of the host network interface `eth0` (or other) required for Modbus TCP, PROFINET or similar communications.
+To backup the license file "3SLicenseInfo.tar" follow this [FAQ information](https://forum.codesys.com/viewtopic.php?f=22&t=5641&start=15#p10689).
+To restore the license file "3SLicenseInfo.tar" follow this [FAQ information](https://forum.codesys.com/viewtopic.php?f=22&t=5641&p=10690#p10690).
 
-Using this mode makes port mapping unnecessary since all the container's used ports are exposed to the host automatically.
+### Container setup
 
-##### Privileged mode
+#### Host network
 
-The privileged mode option needs to be activated to lift the standard Docker enforced container limitations. With this setting the container and the applications inside are the getting (almost) all capabilities as if running on the Host directly. 
+The container needs to run in `host` network mode.
 
-netPI's secure reference software architecture prohibits root access to the Host system always. Even if priviledged mode is activated the intrinsic security of the Host Linux Kernel can not be compromised.
+Using this mode makes port mapping unnecessary since all the used container ports (like 22) are exposed to the host automatically.
 
-##### Host device
+#### Privileged mode
 
-The CODESYS runtime perfoms a license/serial number check when started. To grant access to the VideoCore GPU chip the `/dev/vcio` host device needs to be exposed to the container. In case the device is not exposed the CODESYS runtime will stop after 30 seconds without any message.
+The privileged mode option needs to be activated to lift the standard Docker enforced container limitations. With this setting the container and the applications inside are the getting (almost) all capabilities as if running on the Host directly
 
-#### Getting started
+#### Host devices
+
+The CODESYS runtime perfoms a license versus serial number check across the device VideoCore GPU when started. To grant access to the GPU chip the `/dev/vcio` host device is mandatory to add to the container.
+
+In case a CODESYS Runtime Key Dongle is used for licensing the host device `/dev/hidraw0` needs to be added to the container. 
+
+On netPI RTE 3 target only (optional):
+
+The container configures the two RJ45 Industrial Ethernet ports (RTE) as standard LAN interface (single MAC address, but switched) named `cifx0` automatically if the following devices found added to the container
+
+* host device `/dev/spidev0.0` granting access to the network controller netX driving the RTE ports
+* host device `/dev/net/tun` granting access to network interface registering logic
+
+#### Environment variables (optional)
+
+On netPI RTE 3 target only (optional):
+
+The configuration of the LAN interface `cifx0` is done with the following variables
+
+* IP_ADDRESS with a value in the format `x.x.x.x` e.g. 192.168.0.1 configures the interface IP address. A value `dhcp` instead enables the dhcp mode and the interface waits to receive its IP address through a DCHP server.
+* SUBNET_MASK with a value in the format `x.x.x.x` e.g. 255.255.255.0 configures the interface subnet mask. Not necessary to configure in dhcp mode.
+* GATEWAY with a value in the format `x.x.x.x` e.g. 192.168.0.10 configures the interface gateway address. A gateway is optional. Not necessary to configure in dhcp mode.
+
+### Container deployment
 
 STEP 1. Open netPI's website in your browser (https).
 
@@ -58,58 +85,54 @@ STEP 3. Enter the following parameters under *Containers > + Add Container*
 Parameter | Value | Remark
 :---------|:------ |:------
 *Image* | **hilschernetpi/netpi-codesys-basis**
-*Network > Network* | **bridge** or **host** | use alternatively
-*Port mapping* | *host* **22** -> *container* **22** | in bridge mode
-*Port mapping* | *host* **1217** -> *container* **1217** | in bridge mode
-*Port mapping* | *host* **4840** -> *container* **4840** | in bridge mode
-*Restart policy* | **always**
+*Network > Network* | **host** |
+*Restart policy* | **always** |
 *Runtime > Devices > +add device* | *Host path* **/dev/vcio** -> *Container path* **/dev/vcio** |
+*Runtime > Devices > +add device* | *Host path* **/dev/hidraw0** -> *Container path* **/dev/hidraw0** | for CODESYS Runtime Key Dongle
+*Runtime > Devices > +add device* | *Host path* **/dev/spidev0.0** -> *Container path* **/dev/spidev0.0** | for `cifx0` LAN
+*Runtime > Devices > +add device* | *Host path* **/dev/net/tun** -> *Container path* **/dev/net/tun** | for `cifx0` LAN
+*Runtime > Env* | *name* **IP_ADDRESS** -> *value* **e.g.192.168.0.1** or **dhcp** | for `cifx0` LAN
+*Runtime > Env* | *name* **SUBNET_MASK** -> *value* **e.g.255.255.255.0** | for `cifx0` LAN, no need for `dhcp`
+*Runtime > Env* | *name* **GATEWAY** -> *value* **e.g.192.168.0.10** | optional for `cifx0` LAN, no need for `dhcp`
 *Runtime > Privileged mode* | **On** |
 
 STEP 4. Press the button *Actions > Start/Deploy container*
 
 Pulling the image may take a while (5-10mins). Sometimes it may take too long and a time out is indicated. In this case repeat STEP 4.
 
-#### Accessing
+### Container access
 
-A started container is immediately ready to receive the initial load of the "CODESYS Control Runtime for Raspberry" in the versions "Pi SL" or "Pi MC SL" packages.
+A fresh container can immediately be upgraded with your downloaded packages from the CODESYS store. Here is how to proceed
 
-STEP 1: Upgrade your CODESYS development system with support for Raspberry compatible platforms by using the function `Tools -> Package Manager -> Install` and choose the package `CODESYS Control for Raspberry Pi 3.5.xx.xx.package` you downloaded before.
+STEP 1: Upgrade your CODESYS development system first with support for Raspberry Pi/Linux compatible platforms using the function `Tools->Package Manager->Install`. Choose your packages "CODESYS Control for Raspberry Pi 3.5.xx.xx.package" and "CODESYS Edge Gateway for Linux 3.5.x.x.package" and click `Install`.
 
-STEP 2: Restart CODESYS development system to activate the installed package.
+STEP 2: Restart the development system to activate the installed packages extending the top menu bar `Tools` by two new functions.
 
-STEP 3: Use the new function `Tools -> Update Raspberry Pi` to deploy your "CODESYS Control for Raspberry" package to the container. Enter the user `pi` and the password `raspberry` as `Login credentials`. Enter your netPI's IP address in`Select target -> IP address` , choose the version under `Package` you want to get installed and press `Install`. The installation may take up to 1 minute. You will see some message outputs during the installation. (the error "tar: Removing leading / from member names" can be ignored).
+STEP 3: Use the new function `Tools->Update Raspberry Pi` to deploy your "CODESYS Control for Raspberry Pi" package to the container. Enter the user `pi` and the password `raspberry` as `Login credentials`. Enter your netPI's IP address in `Select target->IP address` , choose the version under `Package` you want to install and press `Install`. The installation may take up to 1 minute. Choose `Standard` or `Multicore` runtime mode during installation.
 
-STEP 4: Press `Runtime -> Start` to activate the CODESYS runtime in the container. This will also activate an automatic start of the runtime during power cycles.
+STEP 4: Use the new function `Tools->Update Edge Gateway` to deploy your "CODESYS Edge Gateway for Linux" package to the container. Enter the user `pi` and the password `raspberry` as `Login credentials`. Enter your netPI's IP address in `Select target->IP address` , choose the version `V3.5.x.x.(armhf)` under `Package` you want to install and press `Install`. The installation may take up to 1 minute. The container is now well prepared and ready to receive a project.
 
-STEP 5: Setup a communication path to netPI using the software gateway running in netPI's runtime. Create a new gateway with netPI's IP address at port 1217. Then use the `Scan network` option and click on the device found. e.g. host mode: NTB827EBEA02D0 [0000.0539]. 
+STEP 5: Create a CODESYS new project. Choose `Standard Project` and as `Device` "CODESYS Control for Raspberry Pi xx" and then `ok`. After project creation double click the topmost `Device(CODESYS Control for Raspberry Pi)` in the project tree.
 
-#### IMPORTANT INFORMATION: BACKUP YOUR LICENSE
+STEP 6: Setup a communication from the CODESYS development system to the container Edge Gateway. Use the function `Gateway->Add New Gateway` in the dialog `Device`. As gateway `IP-address` use the netPI IP address at port 1217 and click `ok`. Use the option `Device->Scan Network...` option and click the found device found. e.g. NTB827EBEA02D0 [0000.0539] and `ok`.
 
-Usually an email with a ticket number (e.g A78HY-TBVMD-8SVC7-P8BHX-4LED6) is granting you a license. Together with the CODESYS development system the ticket number is transformed in a license deployed to the device to activate the unlimited runtime. 
+### Container test
 
-Since the ticket number gets invalid during the licensing procedure and cannot be reused again the only license copy is stored on the device **in the container** worth it to backup. If the container gets lost or is deleted your license copy is **gone forever**.
+The container has been successfully tested against the [CODESYS Development System V3](https://store.codesys.com/codesys.html) in the version V3.5.15.10 and the [CODESYS Control for Raspberry Pi SL](https://store.codesys.com/codesys-control-for-raspberry-pi-sl.html) and [CODESYS Control for Raspberry Pi MC SL](https://store.codesys.com/codesys-control-for-raspberry-pi-mc-sl.html) both in the version V3.5.15.10
 
-To backup the license file "3SLicenseInfo.tar" follow this [FAQ information](https://forum.codesys.com/viewtopic.php?f=22&t=5641&start=15#p10689).
+### Youtube
 
-To restore the license file "3SLicenseInfo.tar" follow this [FAQ information](https://forum.codesys.com/viewtopic.php?f=22&t=5641&p=10690#p10690).
-
-#### Versions tested
-The container has been successfully tested against the [CODESYS Development System V3](https://store.codesys.com/codesys.html) in the version V3.5.14.0 and the [CODESYS Control for Raspberry Pi SL](https://store.codesys.com/codesys-control-for-raspberry-pi-sl.html) and [CODESYS Control for Raspberry Pi MC SL](https://store.codesys.com/codesys-control-for-raspberry-pi-mc-sl.html) both in the version V3.5.14.0.
-
-#### Youtube
-
-HINT: The video does not show the mapping of the `/dev/vcio` host device
+HINT: The software version shown in the video may differ from yours and screens/options/windows may look different meanwhile. The video also doesn't show the mapping of the `/dev/vcio` and `/dev/spidev0.0` host devices when the container is deplyed and no installation of the Edge Gateway package.
 
 [![Tutorial](https://img.youtube.com/vi/cXIHu3-4-eg/0.jpg)](https://youtu.be/cXIHu3-4-eg)
 
-#### Automated build
+### Container automated build
 
 The project complies with the scripting based [Dockerfile](https://docs.docker.com/engine/reference/builder/) method to build the image output file. Using this method is a precondition for an [automated](https://docs.docker.com/docker-hub/builds/) web based build process on DockerHub platform.
 
 DockerHub web platform is x86 CPU based, but an ARM CPU coded output file is needed for Raspberry systems. This is why the Dockerfile includes the [balena.io](https://balena.io/blog/building-arm-containers-on-any-x86-machine-even-dockerhub/) steps.
 
-#### License
+### License
 
 View the license information for the software in the project. As with all Docker images, these likely also contain other software which may be under other licenses (such as Bash, etc from the base distribution, along with any direct or indirect dependencies of the primary software being contained).
 As for any pre-built image usage, it is the image user's responsibility to ensure that any use of this image complies with any relevant licenses for all software contained within.
