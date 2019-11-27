@@ -14,7 +14,7 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
 RUN [ "cross-build-start" ]
 
 #version
-ENV HILSCHERNETPI_CODESYS_BASIS_VERSION 1.1.0
+ENV HILSCHERNETPI_CODESYS_BASIS_VERSION 1.1.1
 
 #execute all commands as root
 USER root

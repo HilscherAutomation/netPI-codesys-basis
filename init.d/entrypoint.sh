@@ -63,6 +63,9 @@ if [[ -e "/dev/spidev0.0" ]]&& [[ -e "/dev/net/tun" ]]; then
   # create netx "cifx0" ethernet network interface 
   /opt/cifx/cifx0daemon
 
+  #interface needs a little time to start
+  sleep 5
+
   # bring interface up first of all
   ip link set cifx0 up
 
