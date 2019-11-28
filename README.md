@@ -64,15 +64,7 @@ The container configures the two RJ45 Industrial Ethernet ports (RTE) as standar
 * host device `/dev/spidev0.0` granting access to the network controller netX driving the RTE ports
 * host device `/dev/net/tun` granting access to network interface registering logic
 
-#### Environment variables (optional)
-
-On netPI RTE 3 target only (optional):
-
-The configuration of the LAN interface `cifx0` is done with the following variables
-
-* IP_ADDRESS with a value in the format `x.x.x.x` e.g. 192.168.0.1 configures the interface IP address. A value `dhcp` instead enables the dhcp mode and the interface waits to receive its IP address through a DCHP server.
-* SUBNET_MASK with a value in the format `x.x.x.x` e.g. 255.255.255.0 configures the interface subnet mask. Not necessary to configure in dhcp mode.
-* GATEWAY with a value in the format `x.x.x.x` e.g. 192.168.0.10 configures the interface gateway address. A gateway is optional. Not necessary to configure in dhcp mode.
+In "Host network" mode the Host treats the `cifx0` as a standard LAN interface. This is why the `cifx0` IP settings are configured in the device's network/LAN settings dialog (like "eth0" interface). Any change on the IP settings needs a container restart to accept the new IP parameters.
 
 ### Container deployment
 
@@ -91,9 +83,6 @@ Parameter | Value | Remark
 *Runtime > Devices > +add device* | *Host path* **/dev/hidraw0** -> *Container path* **/dev/hidraw0** | for CODESYS Runtime Key Dongle
 *Runtime > Devices > +add device* | *Host path* **/dev/spidev0.0** -> *Container path* **/dev/spidev0.0** | for `cifx0` LAN
 *Runtime > Devices > +add device* | *Host path* **/dev/net/tun** -> *Container path* **/dev/net/tun** | for `cifx0` LAN
-*Runtime > Env* | *name* **IP_ADDRESS** -> *value* **e.g.192.168.0.1** or **dhcp** | for `cifx0` LAN
-*Runtime > Env* | *name* **SUBNET_MASK** -> *value* **e.g.255.255.255.0** | for `cifx0` LAN, no need for `dhcp`
-*Runtime > Env* | *name* **GATEWAY** -> *value* **e.g.192.168.0.10** | optional for `cifx0` LAN, no need for `dhcp`
 *Runtime > Privileged mode* | **On** |
 
 STEP 4. Press the button *Actions > Start/Deploy container*

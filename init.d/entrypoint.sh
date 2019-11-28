@@ -63,64 +63,9 @@ if [[ -e "/dev/spidev0.0" ]]&& [[ -e "/dev/net/tun" ]]; then
   # create netx "cifx0" ethernet network interface 
   /opt/cifx/cifx0daemon
 
-  #interface needs a little time to start
-  sleep 5
-
   # bring interface up first of all
   ip link set cifx0 up
 
-  # ip address configured as environment variable?
-  if [ -z "$IP_ADDRESS" ]
-  then
-    echo "No cifx0 IP address configured as environment variable $IP_ADDRESS. Falling back to 192.168.253.1"
-    # set alternative
-    IP_ADDRESS="192.168.253.1"
-  fi
-
-  # subnet mask configured as environment variable?
-  if [ -z "${SUBNET_MASK}" ]
-  then
-    echo "No cifx0 subnet mask configured as environment variable $SUBNET_MASK. Falling back to 255.255.255.0"
-   # set alternative
-    SUBNET_MASK="255.255.255.0"
-  fi
-
-  if [ "$IP_ADDRESS" == "dhcp" ]
-  then
-    echo "cifx0 configured to dhcp"
-    # set dhcp mode
-    dhclient cifx0
-  else
-    #split given parameters in factors
-    IFS=. read -r i1 i2 i3 i4 <<< "$IP_ADDRESS"
-    IFS=. read -r m1 m2 m3 m4 <<< "$SUBNET_MASK"
-
-    #calculate the broadcast address
-    BROADCAST=$((i1 & m1 | 255-m1)).$((i2 & m2 | 255-m2)).$((i3 & m3 | 255-m3)).$((i4 & m4 | 255-m4))
-
-    # set ip address and subnet mask
-    ip addr add $IP_ADDRESS/$SUBNET_MASK broadcast $BROADCAST dev cifx0
-
-    echo "cifx0 ip address/subnet mask set to" $IP_ADDRESS"/"$SUBNET_MASK
-  
-    #is a gateway set?
-    if [ -n "${GATEWAY}" ]
-    then
-      echo "gateway set to" $GATEWAY
-    
-      # flush default routes
-      ip route flush dev cifx0
-    
-      # make gateway known
-      ip route add $GATEWAY dev cifx0
-  
-      # set route via gateway
-      NETWORK=$((i1 & m1)).$((i2 & m2)).$((i3 & m3)).$((i4 & m4))
-      ip route add $NETWORK/$SUBNET_MASK via $GATEWAY src $IP_ADDRESS dev cifx0
-    else 
-      echo "No cifx0 gateway address configured as environment variable $GATEWAY"
-    fi
-  fi
 else
   echo "cifx0 hardware support (TCP/IP over RTE LAN ports) not configured." 
 fi
