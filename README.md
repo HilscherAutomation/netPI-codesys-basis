@@ -57,14 +57,27 @@ The CODESYS runtime perfoms a license versus serial number check across the devi
 
 In case a CODESYS Runtime Key Dongle is used for licensing the host device `/dev/hidraw0` needs to be added to the container. 
 
-On netPI RTE 3 target only (optional):
+##### Additional Ethernet LAN Interface on netPI RTE 3 (optional)
 
 The container configures the two RJ45 Industrial Ethernet ports (RTE) as standard LAN interface (single MAC address, but switched) named `cifx0` automatically if the following devices found added to the container
 
 * host device `/dev/spidev0.0` granting access to the network controller netX driving the RTE ports
 * host device `/dev/net/tun` granting access to network interface registering logic
 
-In "Host network" mode the Host treats the `cifx0` as a standard LAN interface. This is why the `cifx0` IP settings are configured in the device's network/LAN settings dialog (like "eth0" interface). Any change on the IP settings needs a container restart to accept the new IP parameters.
+Since the container runs in "Host network" mode the container host treats the `cifx0` as a standard LAN interface. This is why the `cifx0` IP settings are configured in the netPI's network/LAN settings dialog (like "eth0" interface). Any change on the IP settings needs a container restart to accept the new IP parameters.
+
+netPI RTE 3's Industrial network controller netX was designed to support all kind of Industrial Networks as device in the first place. Its performance is high when exchanging IO data from and to a master PLC and any Host application via IO buffers periodically. The controller was not designed to support high performance message oriented exchange of data as used with Ethernet communications. This is why the provided `cifx0` interface is a low to mid-range performer but is still a good compromise to add another Ethernet interface to netPI RTE 3 on demand.
+
+Measurements have shown that around 700 to 800MByte/s throughput can be reached across `cifx0` whereas with netPI's primary Ethernet port `eth0` 10MByte/s can be reached. Reasons are :
+
+* 25MHz SPI clock frequency between netX and Raspberry Pi CPU only
+* User space driver instead of a kernel driver
+* 8 messages deep message receive queue only for incoming Ethernet frames
+* SPI handshake protocol with additional overhead between netX and Raspberry Pi during message based communications
+
+The `cifx0` LAN interface will drop Ethernet frames in case its message queue is being overun at high LAN network traffic. The TCP/IP network protocol embeds a recovery procedure for packet loss due to retransmissions. This is why you usually do not recognize a problem when this happens. Single frame communications using non TCP/IP based traffic like the ping command may recognize lost frames.
+
+The `cifx0` LAN interface DOES NOT support Ethernet package reception of type multicast.
 
 ### Container deployment
 
@@ -109,7 +122,21 @@ STEP 6: Setup a communication from the CODESYS development system to the contain
 
 The container has been successfully tested against the [CODESYS Development System V3](https://store.codesys.com/codesys.html) in the version V3.5.15.10 and the [CODESYS Control for Raspberry Pi SL](https://store.codesys.com/codesys-control-for-raspberry-pi-sl.html) and [CODESYS Control for Raspberry Pi MC SL](https://store.codesys.com/codesys-control-for-raspberry-pi-mc-sl.html) both in the version V3.5.15.10
 
-### Youtube
+#### Container cifx0 Ethernet frame throughput (on netPI RTE 3)
+
+netPI RTE 3's Industrial network controller netX was designed to support all kind of Industrial Networks as device in the first place. Its performance is high when exchanging IO data from and to a master PLC and any Host application via IO buffers periodically. The controller was not designed to support high performance message oriented exchange of data as used with Ethernet communications. This is why the provided `cifx0` interface is a low to mid-range performer. But is still a good compromise to add another Ethernet interface to netPI optionally.
+
+Measurements have shown that around 1MByte/s throughput can be reached across `cifx0` whereas with netPI's primary Ethernet port `eth0` 10MByte/s can be reached in the middle. The reasons for this is the following:
+
+* 25MHz SPI clock frequency between netX and Raspberry Pi CPU only
+* User space driver instead of a kernel driver, but enabling its use in a container
+* 8 messages deep message receive queue only for incoming Ethernet frames
+* SPI handshake protocol with additional overhead between netX and Raspberry Pi during message based communications
+
+`cifx0` will drop Ethernet frames in case its message queue is being overun at high traffic. A TCP/IP based protocol embeds a recovery from this state when frames are lost. This is why you usually do not recognize a problem when this happens. Using single frame communications with no additional protocol for data repetition like the ping command could result in lost frames indeed.
+
+
+### Container Youtube
 
 HINT: The software version shown in the video may differ from yours and screens/options/windows may look different meanwhile. The video also doesn't show the mapping of the `/dev/vcio` and `/dev/spidev0.0` host devices when the container is deplyed and no installation of the Edge Gateway package.
 

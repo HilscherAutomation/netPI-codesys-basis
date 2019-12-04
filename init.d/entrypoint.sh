@@ -60,6 +60,12 @@ if [[ -e "/dev/spidev0.0" ]]&& [[ -e "/dev/net/tun" ]]; then
 
   echo "cifx0 hardware support (TCP/IP over RTE LAN ports) configured." 
 
+  #pre-configure GPIO 24 to serve as interrupt pin between netX chip and BCM CPU
+  echo 24 > /sys/class/gpio/export
+  echo rising > /sys/class/gpio/gpio24/edge
+  echo in > /sys/class/gpio/gpio24/direction
+  echo 1 > /sys/class/gpio/gpio24/active_low
+
   # create netx "cifx0" ethernet network interface 
   /opt/cifx/cifx0daemon
 

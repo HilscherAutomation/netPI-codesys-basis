@@ -14,7 +14,7 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
 RUN [ "cross-build-start" ]
 
 #version
-ENV HILSCHERNETPI_CODESYS_BASIS_VERSION 1.2.0
+ENV HILSCHERNETPI_CODESYS_BASIS_VERSION 1.3.0
 
 #execute all commands as root
 USER root
@@ -28,7 +28,7 @@ LABEL maintainer="netpi@hilscher.com" \
 ENV USER=pi
 ENV PASSWD=raspberry
 
-COPY "./driver/*" "./firmware/*" /tmp/
+COPY "./driver/*" "./driver/includes/" "./firmware/*" /tmp/
 
 #install ssh, create user "pi" and make him sudo
 RUN apt-get update  \
@@ -45,9 +45,11 @@ RUN apt-get update  \
     && touch /etc/modprobe.d/blacklist.conf \
     && touch /etc/modules \
 #install netX driver and netX ethernet supporting firmware
-    && dpkg -i /tmp/netx-docker-pi-drv-1.1.3-r1.deb \
+    && dpkg -i /tmp/netx-docker-pi-drv-2.0.1-r0.deb \
     && dpkg -i /tmp/netx-docker-pi-pns-eth-3.12.0.8.deb \
 #compile netX network daemon that creates the cifx0 ethernet interface
+    && echo "Irq=/sys/class/gpio/gpio24/value" >> /opt/cifx/plugins/netx-spm/config0 \
+    && cp /tmp/*.h /usr/include/cifx \
     && cp /tmp/cifx0daemon.c /opt/cifx/cifx0daemon.c \
     && gcc /opt/cifx/cifx0daemon.c -o /opt/cifx/cifx0daemon -I/usr/include/cifx -Iincludes/ -lcifx -pthread \
 #clean up
