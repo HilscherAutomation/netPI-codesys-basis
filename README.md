@@ -68,7 +68,7 @@ Since the container runs in "Host network" mode the container host treats the `c
 
 netPI RTE 3's Industrial network controller netX was designed to support all kind of Industrial Networks as device in the first place. Its performance is high when exchanging IO data from and to a master PLC and any Host application via IO buffers periodically. The controller was not designed to support high performance message oriented exchange of data as used with Ethernet communications. This is why the provided `cifx0` interface is a low to mid-range performer but is still a good compromise to add another Ethernet interface to netPI RTE 3 on demand.
 
-Measurements have shown that around 700 to 800MByte/s throughput can be reached across `cifx0` whereas with netPI's primary Ethernet port `eth0` 10MByte/s can be reached. Reasons are :
+Measurements have shown that around 700 to 800KByte/s throughput can be reached across `cifx0` only whereas with netPI's primary Ethernet port `eth0` 10MByte/s can be reached. Reasons are :
 
 * 25MHz SPI clock frequency between netX and Raspberry Pi CPU only
 * User space driver instead of a kernel driver
@@ -121,20 +121,6 @@ STEP 6: Setup a communication from the CODESYS development system to the contain
 ### Container test
 
 The container has been successfully tested against the [CODESYS Development System V3](https://store.codesys.com/codesys.html) in the version V3.5.15.10 and the [CODESYS Control for Raspberry Pi SL](https://store.codesys.com/codesys-control-for-raspberry-pi-sl.html) and [CODESYS Control for Raspberry Pi MC SL](https://store.codesys.com/codesys-control-for-raspberry-pi-mc-sl.html) both in the version V3.5.15.10
-
-#### Container cifx0 Ethernet frame throughput (on netPI RTE 3)
-
-netPI RTE 3's Industrial network controller netX was designed to support all kind of Industrial Networks as device in the first place. Its performance is high when exchanging IO data from and to a master PLC and any Host application via IO buffers periodically. The controller was not designed to support high performance message oriented exchange of data as used with Ethernet communications. This is why the provided `cifx0` interface is a low to mid-range performer. But is still a good compromise to add another Ethernet interface to netPI optionally.
-
-Measurements have shown that around 1MByte/s throughput can be reached across `cifx0` whereas with netPI's primary Ethernet port `eth0` 10MByte/s can be reached in the middle. The reasons for this is the following:
-
-* 25MHz SPI clock frequency between netX and Raspberry Pi CPU only
-* User space driver instead of a kernel driver, but enabling its use in a container
-* 8 messages deep message receive queue only for incoming Ethernet frames
-* SPI handshake protocol with additional overhead between netX and Raspberry Pi during message based communications
-
-`cifx0` will drop Ethernet frames in case its message queue is being overun at high traffic. A TCP/IP based protocol embeds a recovery from this state when frames are lost. This is why you usually do not recognize a problem when this happens. Using single frame communications with no additional protocol for data repetition like the ping command could result in lost frames indeed.
-
 
 ### Container Youtube
 
