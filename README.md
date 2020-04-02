@@ -124,15 +124,9 @@ The container has been successfully tested against the [CODESYS Development Syst
 
 ### Container Youtube
 
-HINT: The software version shown in the video may differ from yours and screens/options/windows may look different meanwhile. The video also doesn't show the mapping of the `/dev/vcio` and `/dev/spidev0.0` host devices when the container is deplyed and no installation of the Edge Gateway package.
+HINT: The software version shown in the video may differ from yours and screens/options/windows may look different meanwhile. The video also doesn't show the mapping of the `/dev/vcio` and `/dev/spidev0.0` host devices when the container is deployed and no installation of the Edge Gateway package.
 
 [![Tutorial](https://img.youtube.com/vi/cXIHu3-4-eg/0.jpg)](https://youtu.be/cXIHu3-4-eg)
-
-### Container automated build
-
-The project complies with the scripting based [Dockerfile](https://docs.docker.com/engine/reference/builder/) method to build the image output file. Using this method is a precondition for an [automated](https://docs.docker.com/docker-hub/builds/) web based build process on DockerHub platform.
-
-DockerHub web platform is x86 CPU based, but an ARM CPU coded output file is needed for Raspberry systems. This is why the Dockerfile includes the [balena.io](https://balena.io/blog/building-arm-containers-on-any-x86-machine-even-dockerhub/) steps.
 
 ### License
 

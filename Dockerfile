@@ -10,11 +10,8 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.vcs-url="https://github.com/HilscherAutomation/netPI-codesys-basis" \
       org.label-schema.vcs-ref=$VCS_REF
 
-#enable building ARM container on x86 machinery on the web (comment out next line if built on Raspberry)
-RUN [ "cross-build-start" ]
-
 #version
-ENV HILSCHERNETPI_CODESYS_BASIS_VERSION 1.3.2
+ENV HILSCHERNETPI_CODESYS_BASIS_VERSION 1.3.3
 
 #execute all commands as root
 USER root
@@ -69,5 +66,3 @@ ENTRYPOINT ["/etc/init.d/entrypoint.sh"]
 #set STOPSGINAL
 STOPSIGNAL SIGTERM
 
-#stop processing ARM emulation (comment out next line if built on Raspberry)
-RUN [ "cross-build-end" ]
