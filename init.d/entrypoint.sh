@@ -78,8 +78,16 @@ else
   echo "cifx0 hardware support (TCP/IP over RTE LAN ports) not configured." 
 fi
 
+
 # run applications in the background
-echo "starting ssh ..."
+echo "starting SSH server ..."
+if [ "SSHPORT" ]; then
+  #there is an alternative SSH port configured
+  echo "the container binds the SSH server port to the configured port $SSHPORT"
+  sed -i -e "s;#Port 22;Port $SSHPORT;" /etc/ssh/sshd_config
+else
+  echo "the container binds the SSH server port to the default port 22"
+fi
 /etc/init.d/ssh start &
 
 if [ -f /etc/init.d/codesyscontrol ]
