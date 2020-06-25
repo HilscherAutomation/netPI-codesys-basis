@@ -27,6 +27,12 @@ fi
 # SIGNAL-handler
 term_handler() {
  
+  #remove cifx0 interface from system if created by the container
+  if ps -A | grep -q "cifx0daemon" ; then
+    killall cifx0deamon
+    ip link delete cifx0
+  fi
+
   if [ -f /etc/init.d/edgegateway ]
   then
     echo "Terminating CODESYS Edge Gateway ..."
@@ -58,22 +64,26 @@ fi
 #check presence of device spi0.0 and net device register
 if [[ -e "/dev/spidev0.0" ]]&& [[ -e "/dev/net/tun" ]]; then
 
-  echo "cifx0 hardware support (TCP/IP over RTE LAN ports) configured." 
+  #check if cifx0 interface is not running already
+  if ! ip addr show | grep -q "cifx0" ; then
 
-  #pre-configure GPIO 24 to serve as interrupt pin between netX chip and BCM CPU
-  if [[ ! -e "/sys/class/gpio/gpio24" ]]; then 
-    echo 24 > /sys/class/gpio/export
-  fi
-  echo rising > /sys/class/gpio/gpio24/edge
-  echo in > /sys/class/gpio/gpio24/direction
-  echo 1 > /sys/class/gpio/gpio24/active_low
+    echo "cifx0 hardware support (TCP/IP over RTE LAN ports) configured." 
 
-  # create netx "cifx0" ethernet network interface 
-  /opt/cifx/cifx0daemon
+    #pre-configure GPIO 24 to serve as interrupt pin between netX chip and BCM CPU
+    if [[ ! -e "/sys/class/gpio/gpio24" ]]; then 
+      echo 24 > /sys/class/gpio/export
+    fi
+    echo rising > /sys/class/gpio/gpio24/edge
+    echo in > /sys/class/gpio/gpio24/direction
+    echo 1 > /sys/class/gpio/gpio24/active_low
 
-  # bring interface up first of all
-  ip link set cifx0 up
+    # create netx "cifx0" ethernet network interface 
+    /opt/cifx/cifx0daemon
 
+    # bring interface up first of all
+    ip link set cifx0 up
+
+  fi 
 else
   echo "cifx0 hardware support (TCP/IP over RTE LAN ports) not configured." 
 fi

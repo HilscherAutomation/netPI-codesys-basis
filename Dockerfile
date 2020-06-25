@@ -11,7 +11,7 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.vcs-ref=$VCS_REF
 
 #version
-ENV HILSCHERNETPI_CODESYS_BASIS_VERSION 1.3.4
+ENV HILSCHERNETPI_CODESYS_BASIS_VERSION 1.3.5
 
 #execute all commands as root
 USER root
