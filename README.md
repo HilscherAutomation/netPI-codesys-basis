@@ -1,11 +1,10 @@
 ## CODESYS Control
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![](https://images.microbadger.com/badges/commit/hilschernetpi/netpi-codesys-basis.svg)](https://microbadger.com/images/hilschernetpi/netpi-codesys-basis "CODESYS Control")
-[![Docker Registry](https://img.shields.io/docker/pulls/hilschernetpi/netpi-codesys-basis.svg)](https://registry.hub.docker.com/r/hilschernetpi/netpi-codesys-basis/)&nbsp;
-[![Image last updated](https://img.shields.io/badge/dynamic/json.svg?url=https://api.microbadger.com/v1/images/hilschernetpi/netpi-codesys-basis&label=Image%20last%20updated&query=$.LastUpdated&colorB=007ec6)](http://microbadger.com/images/hilschernetpi/netpi-codesys-basis "Image last updated")&nbsp;
-
 Made for Raspberry Pi 3B architecture based devices and compatibles
+
+### Docker repository
+
+https://hub.docker.com/r/hilschernetpi/netpi-codesys-basis/
 
 ### Container features
 
@@ -110,12 +109,12 @@ Parameter | Value | Remark
 *Image* | **hilschernetpi/netpi-codesys-basis** | a :tag may be added as well
 *Network > Network* | **host** |
 *Restart policy* | **always** |
-*Runtime > Env* | *name* **SSHPORT** -> *value* **any number value** | optional for different SSH port
-*Runtime > Devices > +add device* | *Host path* **/dev/vcio** -> *Container path* **/dev/vcio** |
-*Runtime > Devices > +add device* | *Host path* **/dev/hidraw0** -> *Container path* **/dev/hidraw0** | for CODESYS Runtime Key Dongle
-*Runtime > Devices > +add device* | *Host path* **/dev/spidev0.0** -> *Container path* **/dev/spidev0.0** | for `cifx0` LAN
-*Runtime > Devices > +add device* | *Host path* **/dev/net/tun** -> *Container path* **/dev/net/tun** | for `cifx0` LAN
-*Runtime > Privileged mode* | **On** |
+*Adv.con.set. > Env > +add env.var.* | *name* **SSHPORT** -> *value* **any number value** | optional for different SSH port
+*Adv.con.set. > Devices > +add device* | *Host path* **/dev/vcio** -> *Container path* **/dev/vcio** |
+*Adv.con.set. > Devices > +add device* | *Host path* **/dev/hidraw0** -> *Container path* **/dev/hidraw0** | for CODESYS Runtime Key Dongle
+*Adv.con.set. > Devices > +add device* | *Host path* **/dev/spidev0.0** -> *Container path* **/dev/spidev0.0** | for `cifx0` LAN
+*Adv.con.set. > Devices > +add device* | *Host path* **/dev/net/tun** -> *Container path* **/dev/net/tun** | for `cifx0` LAN
+*Adv.con.set. > Privileged mode* | **On** |
 
 STEP 4. Press the button *Actions > Start/Deploy container*
 
